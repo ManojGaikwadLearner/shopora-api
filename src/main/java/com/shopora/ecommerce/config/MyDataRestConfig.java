@@ -13,6 +13,7 @@ import org.springframework.data.rest.core.mapping.ExposureConfigurer;
 import org.springframework.data.rest.webmvc.config.RepositoryRestConfigurer;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.util.pattern.PathPatternParser;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -21,17 +22,19 @@ import java.util.Set;
 @Configuration
 public class MyDataRestConfig implements RepositoryRestConfigurer {
 
+    private final PathPatternParser pathPatternParser;
     private EntityManager entityManager;
 
     @Autowired
-    public MyDataRestConfig(EntityManager theEntityManager) {
+    public MyDataRestConfig(EntityManager theEntityManager, PathPatternParser pathPatternParser) {
         entityManager = theEntityManager;
+        this.pathPatternParser = pathPatternParser;
     }
 
     @Override
     public void configureRepositoryRestConfiguration(RepositoryRestConfiguration config, CorsRegistry cors) {
 //        RepositoryRestConfigurer.super.configureRepositoryRestConfiguration(config, cors);
-        HttpMethod[] theUnsupportedActions = { HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE };
+        HttpMethod[] theUnsupportedActions = { HttpMethod.POST, HttpMethod.PUT, HttpMethod.DELETE, HttpMethod.PATCH };
 
         // disable HTTP methods for Class Entities: PUT, POST and DELETE
         disabledHttpMethods(Product.class, config, theUnsupportedActions);
@@ -41,6 +44,9 @@ public class MyDataRestConfig implements RepositoryRestConfigurer {
 
         // call an internal helper method
          exposeIds(config);
+
+         // configure cors mapping
+        cors.addMapping("/api/**").allowedOrigins("http://localhost:4200");
     }
 
     private static void disabledHttpMethods(Class theClass, RepositoryRestConfiguration config, HttpMethod[] theUnsupportedActions) {
