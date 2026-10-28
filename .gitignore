@@ -52,3 +52,10 @@ Thumbs.db
 
 # logs
 *.log
+
+*.p12
+*.jks
+*.keystore
+*.pem
+*.key
+*.p12
