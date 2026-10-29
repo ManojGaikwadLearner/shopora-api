@@ -1,8 +1,13 @@
 package com.shopora.ecommerce.controller;
 
+import com.shopora.ecommerce.dto.PaymentInfo;
 import com.shopora.ecommerce.dto.Purchase;
 import com.shopora.ecommerce.dto.PurchaseResponse;
 import com.shopora.ecommerce.service.CheckoutService;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,5 +22,12 @@ public class CheckoutController {
     public PurchaseResponse placeOrder(@RequestBody Purchase purchase) {
         PurchaseResponse purchaseResponse = checkoutService.placeOrder(purchase);
         return purchaseResponse;
+    }
+
+    @PostMapping("/payment-intent")
+    public ResponseEntity<String> createPaymentIntent(@RequestBody PaymentInfo paymentInfo) throws StripeException {
+        PaymentIntent paymentIntent = checkoutService.createPaymentIntent(paymentInfo);
+        String paymentStr = paymentIntent.toJson();
+        return new ResponseEntity<>(paymentStr, HttpStatus.OK);
     }
 }
